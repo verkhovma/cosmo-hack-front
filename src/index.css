@@ -1,0 +1,117 @@
+:root {
+  --bg: #0b1021;
+  --panel: #121a33;
+  --text: #e6ecff;
+  --accent: #4cd964;
+  --danger: #e6194b;
+  --muted: #8894b8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+.app-header {
+  padding: 12px 24px;
+  background: var(--panel);
+  border-bottom: 1px solid #1e2a4a;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-header h1 { font-size: 16px; margin: 0; }
+
+.app-header nav a {
+  color: var(--muted);
+  text-decoration: none;
+  margin-left: 16px;
+}
+
+.app-header nav a.active { color: var(--accent); }
+
+.app-main { flex: 1; padding: 16px; }
+
+.designer {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+}
+
+.panel {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.panel h2 { margin: 0 0 8px; font-size: 14px; color: var(--muted); text-transform: uppercase; }
+
+.scenario-list { list-style: none; padding: 0; margin: 0; }
+.scenario-list button {
+  width: 100%; text-align: left; margin: 4px 0;
+  background: #1a2344; color: var(--text); border: 0;
+  padding: 8px 10px; border-radius: 6px; cursor: pointer;
+}
+.scenario-list button:hover { background: #24305c; }
+
+.btn {
+  display: inline-block;
+  padding: 8px 14px;
+  background: #1a2344;
+  color: var(--text);
+  border-radius: 6px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 0;
+}
+.btn.primary { background: var(--accent); color: #04210c; font-weight: 600; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.map-view canvas { width: 100%; height: auto; border-radius: 8px; }
+
+.timeline { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+.timeline input { flex: 1; }
+.time-label { font-variant-numeric: tabular-nums; color: var(--muted); }
+
+.metrics, .routes, .compare, .planes { width: 100%; border-collapse: collapse; margin: 8px 0; }
+.metrics th, .metrics td,
+.routes th, .routes td,
+.compare th, .compare td,
+.planes th, .planes td {
+  border-bottom: 1px solid #1e2a4a;
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.routes tr.gap td { color: var(--danger); }
+
+.availability-chart svg { width: 100%; height: 40px; }
+.legend { font-size: 12px; color: var(--muted); }
+.legend .ok { color: var(--accent); margin-right: 8px; }
+.legend .bad { color: var(--danger); }
+
+.error-banner {
+  background: #3a1020; color: #ffb4c4;
+  padding: 8px 12px; border-radius: 6px;
+  margin-bottom: 12px;
+  display: flex; justify-content: space-between;
+}
+.error-banner button { background: transparent; border: 0; color: inherit; cursor: pointer; }
+
+.row { display: flex; gap: 12px; align-items: center; margin: 8px 0; }
+
+.jobs { list-style: none; padding: 0; }
+.jobs li { display: flex; justify-content: space-between; padding: 4px 0; }
+
+.scenario-json {
+  background: #0a0f1e; padding: 12px; border-radius: 8px;
+  max-height: 500px; overflow: auto; font-size: 12px;
+}
