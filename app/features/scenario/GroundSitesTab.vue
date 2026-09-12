@@ -46,24 +46,26 @@ function remove(i: number) {
       </div>
     </div>
     <p v-if="!sites.length" class="text-sm text-mist">Пунктов нет. Добавьте хотя бы один клиент и один шлюз.</p>
-    <Table v-else>
-      <TableHeader>
-        <TableRow>
-          <TableHead>ID</TableHead>
-          <TableHead>Название</TableHead>
-          <TableHead>Роль</TableHead>
-          <TableHead>Широта</TableHead>
-          <TableHead>Долгота</TableHead>
-          <TableHead class="w-12" />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow v-for="(g, i) in sites" :key="i">
-          <TableCell><Input :model-value="g.id" @update:model-value="upd(i, 'id', String($event))" /></TableCell>
-          <TableCell><Input :model-value="g.name" @update:model-value="upd(i, 'name', String($event))" /></TableCell>
-          <TableCell>
-            <Select :model-value="g.role" @update:model-value="upd(i, 'role', $event as 'client' | 'gateway')">
-              <SelectTrigger><SelectValue /></SelectTrigger>
+    <!-- min-w: колонки таблицы в узкой панели сжимали инпуты до 0px контента -->
+    <div v-else class="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>ID</TableHead>
+            <TableHead>Название</TableHead>
+            <TableHead>Роль</TableHead>
+            <TableHead>Широта</TableHead>
+            <TableHead>Долгота</TableHead>
+            <TableHead class="w-12" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow v-for="(g, i) in sites" :key="i">
+            <TableCell><Input class="min-w-16" :model-value="g.id" @update:model-value="upd(i, 'id', String($event))" /></TableCell>
+            <TableCell><Input class="min-w-28" :model-value="g.name" @update:model-value="upd(i, 'name', String($event))" /></TableCell>
+            <TableCell>
+              <Select :model-value="g.role" @update:model-value="upd(i, 'role', $event as 'client' | 'gateway')">
+                <SelectTrigger class="min-w-24"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectItem value="client">client</SelectItem>
@@ -72,11 +74,12 @@ function remove(i: number) {
               </SelectContent>
             </Select>
           </TableCell>
-          <TableCell><Input type="number" step="0.01" :model-value="g.lat_deg" @update:model-value="upd(i, 'lat_deg', Number($event))" /></TableCell>
-          <TableCell><Input type="number" step="0.01" :model-value="g.lon_deg" @update:model-value="upd(i, 'lon_deg', Number($event))" /></TableCell>
+          <TableCell><Input class="min-w-20" type="number" step="0.01" :model-value="g.lat_deg" @update:model-value="upd(i, 'lat_deg', Number($event))" /></TableCell>
+          <TableCell><Input class="min-w-20" type="number" step="0.01" :model-value="g.lon_deg" @update:model-value="upd(i, 'lon_deg', Number($event))" /></TableCell>
           <TableCell><Button size="sm" variant="destructive" @click="remove(i)">−</Button></TableCell>
         </TableRow>
-      </TableBody>
-    </Table>
+        </TableBody>
+      </Table>
+    </div>
   </div>
 </template>

@@ -89,27 +89,29 @@ function removeSat(i: number) {
       </Field>
     </FieldGroup>
 
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>ID</TableHead>
-          <TableHead>Плоскость</TableHead>
-          <TableHead>Slot, °</TableHead>
-          <TableHead>Очередь</TableHead>
-          <TableHead class="w-12" />
-        </TableRow>
-      </TableHeader>
+    <!-- min-w: колонки таблицы в узкой панели сжимали инпуты до 0px контента -->
+    <div class="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>ID</TableHead>
+            <TableHead>Плоскость</TableHead>
+            <TableHead>Slot, °</TableHead>
+            <TableHead>Очередь</TableHead>
+            <TableHead class="w-12" />
+          </TableRow>
+        </TableHeader>
       <TableBody>
         <TableRow v-if="!sats.length">
           <TableCell colspan="5" class="text-mist">Спутников нет. Нажмите «+ Спутник».</TableCell>
         </TableRow>
         <TableRow v-for="(s, i) in sats" :key="i">
           <TableCell>
-            <Input :model-value="s.id" @update:model-value="updSat(i, 'id', String($event))" />
+            <Input class="min-w-20" :model-value="s.id" @update:model-value="updSat(i, 'id', String($event))" />
           </TableCell>
           <TableCell>
             <Select :model-value="s.plane_id" @update:model-value="updSat(i, 'plane_id', String($event))">
-              <SelectTrigger><SelectValue placeholder="— выберите —" /></SelectTrigger>
+              <SelectTrigger class="min-w-20"><SelectValue placeholder="— выберите —" /></SelectTrigger>
               <SelectContent>
                 <SelectGroup>
                   <SelectItem v-for="p in design.planes" :key="p.id" :value="p.id">{{ p.id }}</SelectItem>
@@ -118,7 +120,7 @@ function removeSat(i: number) {
             </Select>
           </TableCell>
           <TableCell>
-            <Input type="number" step="0.1" :model-value="s.slot_deg" @update:model-value="updSat(i, 'slot_deg', Number($event))" />
+            <Input class="min-w-20" type="number" step="0.1" :model-value="s.slot_deg" @update:model-value="updSat(i, 'slot_deg', Number($event))" />
           </TableCell>
           <TableCell>
             <Select :model-value="String(s.launch_batch)" @update:model-value="updSat(i, 'launch_batch', Number($event))">
@@ -136,8 +138,9 @@ function removeSat(i: number) {
             <Button size="sm" variant="destructive" @click="removeSat(i)">−</Button>
           </TableCell>
         </TableRow>
-      </TableBody>
-    </Table>
+        </TableBody>
+      </Table>
+    </div>
 
     <div class="flex gap-2">
       <Card v-for="b in ([1, 2, 3] as const)" :key="b" class="flex-1 p-3 text-xs">

@@ -53,34 +53,37 @@ function hasRowError(i: number): boolean {
     <p v-if="!scenario.design.planes.length" class="text-sm text-mist">
       Плоскостей нет. Нажмите «Добавить».
     </p>
-    <Table v-else>
-      <TableHeader>
-        <TableRow>
-          <TableHead>ID</TableHead>
-          <TableHead>RAAN, °</TableHead>
-          <TableHead>Phase, °</TableHead>
-          <TableHead class="w-12" />
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        <TableRow v-for="(p, i) in scenario.design.planes" :key="i" :data-invalid="hasRowError(i) || undefined">
-          <TableCell>
-            <Input :model-value="p.id" :aria-invalid="!!errFor(i, 'id')" @update:model-value="upd(i, 'id', String($event))" />
-            <p v-if="errFor(i, 'id')" class="mt-1 text-xs text-primary">{{ errFor(i, 'id') }}</p>
-          </TableCell>
-          <TableCell>
-            <Input type="number" step="0.1" :model-value="p.raan_deg" :aria-invalid="!!errFor(i, 'raan_deg')" @update:model-value="upd(i, 'raan_deg', Number($event))" />
-            <p v-if="errFor(i, 'raan_deg')" class="mt-1 text-xs text-primary">{{ errFor(i, 'raan_deg') }}</p>
-          </TableCell>
-          <TableCell>
-            <Input type="number" step="0.1" :model-value="p.phase_deg" :aria-invalid="!!errFor(i, 'phase_deg')" @update:model-value="upd(i, 'phase_deg', Number($event))" />
-            <p v-if="errFor(i, 'phase_deg')" class="mt-1 text-xs text-primary">{{ errFor(i, 'phase_deg') }}</p>
-          </TableCell>
-          <TableCell>
-            <Button size="sm" variant="destructive" @click="remove(i)">−</Button>
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
+    <!-- min-w: колонки таблицы в узкой панели сжимали инпуты до 0px контента -->
+    <div v-else class="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>ID</TableHead>
+            <TableHead>RAAN, °</TableHead>
+            <TableHead>Phase, °</TableHead>
+            <TableHead class="w-12" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow v-for="(p, i) in scenario.design.planes" :key="i" :data-invalid="hasRowError(i) || undefined">
+            <TableCell>
+              <Input class="min-w-20" :model-value="p.id" :aria-invalid="!!errFor(i, 'id')" @update:model-value="upd(i, 'id', String($event))" />
+              <p v-if="errFor(i, 'id')" class="mt-1 text-xs text-primary">{{ errFor(i, 'id') }}</p>
+            </TableCell>
+            <TableCell>
+              <Input class="min-w-20" type="number" step="0.1" :model-value="p.raan_deg" :aria-invalid="!!errFor(i, 'raan_deg')" @update:model-value="upd(i, 'raan_deg', Number($event))" />
+              <p v-if="errFor(i, 'raan_deg')" class="mt-1 text-xs text-primary">{{ errFor(i, 'raan_deg') }}</p>
+            </TableCell>
+            <TableCell>
+              <Input class="min-w-20" type="number" step="0.1" :model-value="p.phase_deg" :aria-invalid="!!errFor(i, 'phase_deg')" @update:model-value="upd(i, 'phase_deg', Number($event))" />
+              <p v-if="errFor(i, 'phase_deg')" class="mt-1 text-xs text-primary">{{ errFor(i, 'phase_deg') }}</p>
+            </TableCell>
+            <TableCell>
+              <Button size="sm" variant="destructive" @click="remove(i)">−</Button>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
   </div>
 </template>
