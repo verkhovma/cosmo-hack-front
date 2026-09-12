@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="sputnikovod-c3-t sphinx-c3-d">
+  <title id="sputnikovod-c3-t">Спутниковод — пастушья дуга</title>
+  <desc id="sphinx-c3-d">Scarlet shepherd arc guiding grey satellite dot into orbit</desc>
+  <defs>
+    <style>
+      .arc { fill: none; stroke: #EF3443; stroke-width: 7; stroke-linecap: round; }
+      .track { fill: none; stroke: #545B62; stroke-width: 4; stroke-linecap: round; opacity: .55; }
+    </style>
+  </defs>
+  <g id="icon">
+    <path class="track" d="M14 66 A38 38 0 0 1 82 66" />
+    <path class="arc" d="M20 78 A34 30 0 0 0 76 78" />
+    <circle cx="48" cy="30" r="9" fill="#545B62" />
+    <circle cx="48" cy="30" r="3" fill="#fff" />
+    <circle cx="76" cy="78" r="6" fill="#EF3443" />
+  </g>
+</svg>
