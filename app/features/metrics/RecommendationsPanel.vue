@@ -144,12 +144,12 @@ const items = computed<Item[]>(() => {
       <Alert v-if="!items.length">
         <AlertDescription>Данных для рекомендаций пока нет — дождитесь расчёта.</AlertDescription>
       </Alert>
-      <div v-for="(it, i) in items" :key="i" class="flex items-start justify-between gap-3 rounded-md bg-neutral p-3">
-        <div>
+      <div v-for="(it, i) in items" :key="i" class="flex flex-col gap-2 rounded-md bg-neutral p-3 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+        <div class="min-w-0">
           <b>{{ it.title }}</b>
           <p class="text-secondary">{{ it.text }}</p>
         </div>
-        <Button v-if="it.action" size="sm" variant="secondary" @click="it.action.run">{{ it.action.label }}</Button>
+        <Button v-if="it.action" size="sm" variant="secondary" class="w-full shrink-0 sm:w-auto" @click="it.action.run">{{ it.action.label }}</Button>
       </div>
     </CardContent>
   </Card>

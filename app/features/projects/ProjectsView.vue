@@ -66,14 +66,14 @@ async function openInDesigner(pid: string) {
           </EmptyHeader>
         </Empty>
         <Skeleton v-if="loading" class="h-10 w-full" />
-        <div v-for="p in items" :key="p.id" class="flex items-center gap-3 rounded-md border border-border p-2 text-sm">
-          <div class="flex flex-col">
-            <b>{{ p.title }}</b>
+        <div v-for="p in items" :key="p.id" class="flex flex-col gap-2 rounded-md border border-border p-2 text-sm sm:flex-row sm:items-center sm:gap-3">
+          <div class="flex min-w-0 flex-col">
+            <b class="truncate">{{ p.title }}</b>
             <small class="text-mist">{{ new Date(p.created_at).toLocaleString() }}</small>
           </div>
-          <div class="ml-auto flex gap-2">
-            <Button size="sm" variant="secondary" @click="preview(p.id)">JSON</Button>
-            <Button size="sm" @click="openInDesigner(p.id)">Открыть в конструкторе</Button>
+          <div class="flex gap-2 sm:ml-auto">
+            <Button size="sm" variant="secondary" class="flex-1 sm:flex-none" @click="preview(p.id)">JSON</Button>
+            <Button size="sm" class="flex-1 sm:flex-none" @click="openInDesigner(p.id)">Открыть в конструкторе</Button>
           </div>
         </div>
       </CardContent>

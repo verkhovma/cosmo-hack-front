@@ -35,7 +35,7 @@ const visSegs = computed(() => {
 
 <template>
   <div>
-    <div class="mb-1 flex items-baseline gap-3 text-sm">
+    <div class="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm">
       <b>{{ clientId }}</b>
       <span>{{ fmtPercent(avail) }}</span>
       <span class="text-mist">макс. перерыв {{ maxGap ? fmtDuration(maxGap.to - maxGap.from) : '—' }}</span>
@@ -48,13 +48,13 @@ const visSegs = computed(() => {
     </div>
 
     <div v-if="visibleLog" class="mb-1 flex items-center gap-2">
-      <span class="w-20 text-[11px] tracking-wide text-mist uppercase">видимость</span>
-      <div class="flex h-[18px] flex-1 overflow-hidden rounded bg-ink">
+      <span class="w-14 shrink-0 text-[11px] tracking-wide text-mist uppercase sm:w-20">видимость</span>
+      <div class="flex h-5 flex-1 overflow-hidden rounded bg-ink">
         <div
           v-for="(s, i) in visSegs"
           :key="`v${i}`"
           class="h-full cursor-pointer"
-          :class="s.ok ? 'bg-orbital-light' : 'bg-ink brightness-150'"
+          :class="s.ok ? 'bg-orbital-light' : 'bg-mist/40'"
           :style="{ width: `${((s.to - s.from) / total) * 100}%` }"
           :title="`${fmtClock(s.from)} — ${fmtClock(s.to)}`"
           @click="emit('seek', s.from)"
@@ -63,8 +63,8 @@ const visSegs = computed(() => {
     </div>
 
     <div class="flex items-center gap-2">
-      <span class="w-20 text-[11px] tracking-wide text-mist uppercase">маршрут</span>
-      <div class="flex h-[18px] flex-1 overflow-hidden rounded bg-ink">
+      <span class="w-14 shrink-0 text-[11px] tracking-wide text-mist uppercase sm:w-20">маршрут</span>
+      <div class="flex h-5 flex-1 overflow-hidden rounded bg-ink">
         <Tooltip v-for="(s, i) in routeSegs" :key="`r${i}`">
           <TooltipTrigger as-child>
             <div

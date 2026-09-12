@@ -69,7 +69,7 @@ async function onFile(e: Event) {
 </script>
 
 <template>
-  <div class="grid min-h-[70vh] items-start gap-6 p-8 lg:grid-cols-[320px_1fr]">
+  <div class="grid min-h-[70vh] items-start gap-6 p-4 sm:p-8 lg:grid-cols-[320px_1fr]">
     <Card>
       <CardHeader>
         <CardTitle>Примеры конфигураций</CardTitle>
@@ -93,8 +93,8 @@ async function onFile(e: Event) {
       </CardContent>
     </Card>
 
-    <div class="flex flex-col items-center gap-4 pt-12">
-      <h2 class="font-h1 text-h1 font-medium">Проектирование спутниковой группировки</h2>
+    <div class="flex flex-col items-center gap-4 pt-4 text-center sm:pt-12">
+      <h2 class="font-h1 text-2xl font-medium sm:text-h1">Проектирование спутниковой группировки</h2>
       <Button size="lg" class="w-full max-w-[460px]" :disabled="busy" @click="file?.click()">
         <UploadIcon data-icon="inline-start" />
         Загрузить мою конфигурацию (JSON)

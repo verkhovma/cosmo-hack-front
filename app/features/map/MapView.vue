@@ -3,6 +3,8 @@ import type { FeatureCollection } from 'geojson'
 import type { RouteEntry, Scenario, Snapshot } from '~~/shared/types/scenario'
 
 import { geoMercator, geoPath } from 'd3-geo'
+import { MinusIcon, PlusIcon, RotateCcwIcon } from 'lucide-vue-next'
+import { CLIENT_COLOR, GATEWAY_COLOR, INACTIVE_COLOR, planeColor } from '~~/shared/utils/colors'
 import { fmtClock } from '~~/shared/utils/format'
 import { hasPath } from '~~/shared/utils/routes'
 import { loadWorldLand } from '~~/shared/utils/world'
@@ -34,6 +36,20 @@ const zoom = ref(1)
 const pan = ref({ x: 0, y: 0 })
 const popup = ref<null | Popup>(null)
 const drag = ref<{ x: number, y: number, panX: number, panY: number } | null>(null)
+
+// Легенда плоскостей — те же цвета, что рисует canvas (colors.ts).
+const planeLegend = computed(() =>
+  props.scenario.design.planes.map(p => ({ color: planeColor(p.id), id: p.id })),
+)
+
+// Попап у правого/нижнего края разворачиваем внутрь, чтобы не обрезался.
+const popupFlip = computed(() => {
+  if (!popup.value)
+    return ''
+  const flipX = popup.value.x > MAP_W * 0.7 ? 'translateX(calc(-100% - 12px))' : 'translateX(12px)'
+  const flipY = popup.value.y > MAP_H * 0.7 ? 'translateY(calc(-100% - 12px))' : 'translateY(12px)'
+  return `${flipX} ${flipY}`
+})
 
 onMounted(async () => {
   try {
@@ -205,7 +221,7 @@ function reset() {
           ref="canvas"
           :width="MAP_W"
           :height="MAP_H"
-          class="block h-auto w-full cursor-grab rounded-lg active:cursor-grabbing"
+          class="block h-auto min-h-[300px] w-full cursor-grab touch-pan-y rounded-lg active:cursor-grabbing"
           @mousemove="onMouseMove"
           @mousedown="onMouseDown"
           @mouseup="onMouseUp"
@@ -214,24 +230,25 @@ function reset() {
           @click="onClick"
         />
         <div class="absolute top-2 right-2 flex flex-col gap-1">
-          <Button size="sm" variant="secondary" @click="zoomIn">+</Button>
-          <Button size="sm" variant="secondary" @click="zoomOut">−</Button>
-          <Button size="sm" variant="secondary" @click="reset">⟲</Button>
+          <Button size="icon" variant="secondary" class="h-10 w-10" title="Приблизить" @click="zoomIn"><PlusIcon /></Button>
+          <Button size="icon" variant="secondary" class="h-10 w-10" title="Отдалить" @click="zoomOut"><MinusIcon /></Button>
+          <Button size="icon" variant="secondary" class="h-10 w-10" title="Сбросить масштаб" @click="reset"><RotateCcwIcon /></Button>
         </div>
         <div
           v-if="popup"
-          class="pointer-events-none absolute z-10 rounded-md border border-mist/40 bg-ink/95 px-2 py-1 text-xs whitespace-pre text-white"
-          :style="{ left: `${(popup.x / MAP_W) * 100}%`, top: `${(popup.y / MAP_H) * 100}%`, transform: 'translate(12px, 12px)' }"
+          class="pointer-events-none absolute z-10 max-w-[220px] rounded-md border border-mist/40 bg-ink/95 px-2 py-1 text-xs whitespace-pre-wrap text-white"
+          :style="{ left: `${(popup.x / MAP_W) * 100}%`, top: `${(popup.y / MAP_H) * 100}%`, transform: popupFlip }"
         >
           <div v-for="(l, i) in popup.lines" :key="i">{{ l }}</div>
         </div>
       </div>
     </CardContent>
-    <CardFooter class="flex flex-wrap gap-3 text-xs text-mist">
-      <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm" style="background:#4cd964" />клиент</span>
-      <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm" style="background:#f5a623" />шлюз</span>
+    <CardFooter class="flex flex-wrap gap-x-3 gap-y-1.5 text-xs text-mist">
+      <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm" :style="{ background: CLIENT_COLOR }" />клиент</span>
+      <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm border border-mist/60" :style="{ background: GATEWAY_COLOR }" />шлюз</span>
       <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm bg-azure" />маршрут</span>
-      <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm" style="background:#555" />неактивен</span>
+      <span class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-sm" :style="{ background: INACTIVE_COLOR }" />неактивен</span>
+      <span v-for="p in planeLegend" :key="p.id" class="flex items-center gap-1"><span class="inline-block size-2.5 rounded-full" :style="{ background: p.color }" />{{ p.id }}</span>
     </CardFooter>
   </Card>
 </template>

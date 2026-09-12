@@ -22,7 +22,7 @@ defineProps<{
       <CardDescription>Сквозная достижимость и перерывы по клиентам</CardDescription>
     </CardHeader>
     <CardContent class="p-0">
-      <Table>
+      <Table class="min-w-[560px]">
         <TableHeader>
           <TableRow>
             <TableHead>Клиент</TableHead>

@@ -40,3 +40,5 @@ dist/
 
 # Prisma snapshots (auto-generated)
 migrations/snapshots/
+
+opencode.jsonc
