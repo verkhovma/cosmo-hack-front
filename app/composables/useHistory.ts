@@ -3,6 +3,7 @@
 // Схема хранения: { entries, index } — index указывает на текущую позицию.
 import type { Scenario } from '~~/shared/types/scenario'
 
+import { toPlain } from '~~/shared/utils/plain'
 import { describeChange } from '~~/shared/utils/scenarioDiff'
 
 export interface HistoryEntry {
@@ -20,7 +21,10 @@ const KEY = 'cosmo:history:v1'
 const LIMIT = 50
 
 function clone(s: Scenario): Scenario {
-  return structuredClone(s)
+  // Черновик приходит из reactive-состояния и из spread-объектов редактора,
+  // где вложенные значения — Proxy; structuredClone на Proxy падает с
+  // DataCloneError, из-за чего ломался и push, и undo/redo.
+  return toPlain(s)
 }
 
 function load(): null | Persisted {

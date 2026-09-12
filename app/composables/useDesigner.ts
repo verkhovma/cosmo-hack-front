@@ -10,6 +10,7 @@ import type {
 // Валидация — локально через validateScenario, бэк не спамим при ошибках.
 import { toast } from 'vue-sonner'
 import { loadPersistedDraft, persistDraft } from '~~/shared/utils/draftStorage'
+import { toPlain } from '~~/shared/utils/plain'
 import { validateScenario } from '~~/shared/utils/validate'
 
 import { errorMessage, useApi } from './useApi'
@@ -216,6 +217,29 @@ export function useDesignerRunner(state: DesignerState) {
   return { refreshSnapshot, runNow, scheduleRun }
 }
 
+/**
+ * Пережили reload: восстанавливаем черновик из localStorage и сразу считаем,
+ * как это делает loadScenario — иначе «Запустить» останется disabled (нет result).
+ */
+function restorePersistedDraft(state: DesignerState, history: HistoryApi, scheduleRun: () => void) {
+  if (!import.meta.client || restoredAfterReload)
+    return
+  restoredAfterReload = true
+  if (state.draft.value)
+    return
+  const saved = loadPersistedDraft()
+  if (!saved)
+    return
+  state.draft.value = saved
+  // История могла пережить reload отдельно (свой ключ) — привязываем её
+  // к восстановленному черновику, чтобы откат не прыгал в пустоту.
+  history.reset(saved, 'Восстановлен черновик после перезагрузки')
+  state.showStart.value = false
+  state.selectedClient.value = saved.ground_sites.find(g => g.role === 'client')?.id ?? null
+  toast.info('Черновик восстановлен после перезагрузки')
+  if (validateScenario(saved).length === 0) scheduleRun()
+}
+
 export function useDesigner() {
   const state = useDesignerState()
   const { runNow, scheduleRun } = useDesignerRunner(state)
@@ -230,30 +254,15 @@ export function useDesigner() {
 
   const { jumpToHistory, redo, undo } = createHistoryNav(applyDraft, history)
 
-  // Пережили reload: восстанавливаем черновик из localStorage и сразу считаем,
-  // как это делает loadScenario — иначе «Запустить» останется disabled (нет result).
-  if (import.meta.client && !restoredAfterReload) {
-    restoredAfterReload = true
-    if (!state.draft.value) {
-      const saved = loadPersistedDraft()
-      if (saved) {
-        state.draft.value = saved
-        // История могла пережить reload отдельно (свой ключ) — привязываем её
-        // к восстановленному черновику, чтобы откат не прыгал в пустоту.
-        history.reset(saved, 'Восстановлен черновик после перезагрузки')
-        state.showStart.value = false
-        state.selectedClient.value =
-          saved.ground_sites.find(g => g.role === 'client')?.id ?? null
-        toast.info('Черновик восстановлен после перезагрузки')
-        if (validateScenario(saved).length === 0) scheduleRun()
-      }
-    }
-  }
+  restorePersistedDraft(state, history, scheduleRun)
 
   function updateDraft(s: Scenario) {
-    recordDraft(history, state.draft.value, s)
-    state.draft.value = s
-    persistDraft(s)
+    // Табы отдают spread-объекты с вложенными reactive-Proxy ({ ...props.scenario, … }).
+    // Нормализуем на входе: в состоянии, localStorage и журнале живёт только plain.
+    const next = toPlain(s)
+    recordDraft(history, state.draft.value, next)
+    state.draft.value = next
+    persistDraft(next)
     scheduleRun()
   }
 
