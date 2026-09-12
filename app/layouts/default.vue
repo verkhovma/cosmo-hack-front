@@ -7,9 +7,9 @@ import { TooltipProvider } from '~/components/ui/tooltip'
   <div class="flex min-h-screen flex-col bg-neutral text-ink">
     <header class="flex items-center justify-between gap-4 border-b border-mist/40 bg-white px-6 py-3">
       <div class="flex items-center gap-3">
-        <span class="inline-block size-3 rounded-sm bg-primary" aria-hidden="true" />
+        <img src="/logo-mark.svg" alt="Спутниковод" width="28" height="28" class="size-7 shrink-0">
         <h1 class="font-h2 text-h2 font-medium">
-          КосмоХакатон 2026 — Проектирование группировки
+          Спутниковод — Проектирование группировки
         </h1>
       </div>
       <nav class="flex items-center gap-1 text-body-md">
