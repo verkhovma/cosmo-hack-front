@@ -18,7 +18,10 @@ export default withNuxt(
   {
     // src/ — legacy React-код, исходник для миграции во Vue (см. PLAN.md).
     // Не линтуем, чтобы не чинить то, что будет переписано.
-    ignores: ['.output/**', '.data/**', 'src/**'],
+    // app/components/ui/** — generated код shadcn-vue CLI, правим только через CLI.
+    // lint-staged при этом шлёт игноримые файлы в eslint напрямую, поэтому там же
+    // в package.json добавлен --no-warn-ignored (иначе --max-warnings 0 падает).
+    ignores: ['.output/**', '.data/**', 'src/**', 'app/components/ui/**'],
   },
 
   // @ts-expect-error eslint-plugin-promise types incompatible with flat config
