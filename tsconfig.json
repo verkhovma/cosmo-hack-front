@@ -1,7 +1,4 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  // Nuxt 4: типы генерируются в .nuxt (см. postinstall → nuxt prepare).
+  "extends": "./.nuxt/tsconfig.json"
 }

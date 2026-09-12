@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ── Токены из DESIGN.md лягут сюда в @theme inline
+   (паттерн idea-factory: цвета/шрифты/радиусы → bg-*, text-*, font-*).
+   Пока пусто: колористика живёт в main.css. ── */
