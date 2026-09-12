@@ -35,4 +35,7 @@ EXPOSE 80
 HEALTHCHECK --interval=15s --timeout=5s --retries=5 \
     CMD wget -qO- http://localhost/ || exit 1
 
-CMD ["nginx", "-g", "daemon off;"]
+# nginx резолвит upstream на старте и падает [emerg], если DNS бэка ещё не готов
+# (наблюдалось: crash-loop + RUN_PROBLEM). Поэтому стартуем через проверку конфига
+# с ретраями; exec сохраняет nginx как PID 1 для корректных сигналов.
+CMD ["sh", "-c", "for i in $(seq 1 12); do if nginx -t; then exec nginx -g 'daemon off;'; fi; echo \"nginx config test failed (attempt $i), retrying...\"; sleep 5; done; exit 1"]
