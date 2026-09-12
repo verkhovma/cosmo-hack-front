@@ -1,5 +1,7 @@
 # ---------- builder ----------
-FROM node:20-alpine AS builder
+# node:22-alpine: postcss-merge-longhand (cssnano в цепочке Nuxt) использует
+# Set.prototype.difference (ES2025) — в Node 20 этого API нет вообще.
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
