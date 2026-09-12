@@ -3,16 +3,22 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci || npm install
+# Репо на pnpm (см. AGENTS.md): ставим фиксированный pnpm и зависимости
+# строго по lockfile. Пир-ворнинг @vee-validate/zod/zod — известный,
+# нефатальный: pnpm лишь предупреждает, в отличие от npm (ERESOLVE).
+# Мост vee-validate+zod оставлен сознательно для будущих shadcn-форм.
+RUN npm i -g pnpm@10
+
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-# URL API вшивается в бандл на этапе сборки
-ARG VITE_API_URL=/api
-ENV VITE_API_URL=${VITE_API_URL}
-
-RUN npm run build
+# Nuxt SPA (ssr:false) в статику для nginx: именно generate, т.к. `nuxt build`
+# HTML-шелл не пишет (он остаётся в nitro-сервере), а generate кладёт
+# index.html + 200.html/404.html + prerender страниц в .output/public.
+# API-URL зашит дефолтом runtimeConfig public.apiUrl='/api' под nginx-прокси.
+RUN pnpm generate
 
 # ---------- runtime ----------
 FROM nginx:1.27-alpine
@@ -20,7 +26,7 @@ FROM nginx:1.27-alpine
 # кастомный конфиг для SPA + проксирования /api
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/.output/public /usr/share/nginx/html
 
 EXPOSE 80
 
