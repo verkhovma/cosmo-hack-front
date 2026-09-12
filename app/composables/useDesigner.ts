@@ -12,6 +12,7 @@ import { toast } from 'vue-sonner'
 import { validateScenario } from '~~/shared/utils/validate'
 
 import { errorMessage, useApi } from './useApi'
+import { useHistory } from './useHistory'
 import { useJobs } from './useJobs'
 
 export function emptyScenario(): Scenario {
@@ -105,6 +106,53 @@ export function useDesignerState() {
 
 export type DesignerState = ReturnType<typeof useDesignerState>
 
+const OPEN_LABEL = 'Открыт сценарий'
+type HistoryApi = ReturnType<typeof useHistory>
+type ScheduleRun = () => void
+
+function openLabel(s: Scenario): string {
+  return s.meta.title ? `Открыт: ${s.meta.title}` : OPEN_LABEL
+}
+
+function recordDraft(history: HistoryApi, prev: null | Scenario, next: Scenario) {
+  // Первая правка после reload: восстанавливаем базу в журнал.
+  if (prev && history.entries.value.length === 0)
+    history.reset(prev, OPEN_LABEL)
+  if (prev)
+    history.push(prev, next)
+  else
+    history.reset(next, OPEN_LABEL)
+}
+
+function createHistoryNav(state: DesignerState, history: HistoryApi, scheduleRun: ScheduleRun) {
+  function apply(s: null | Scenario) {
+    if (!s)
+      return
+    state.draft.value = s
+    scheduleRun()
+  }
+  function undo() {
+    const s = history.undo()
+    if (!s) {
+      toast.info('Дальше откатывать нечего')
+      return
+    }
+    apply(s)
+  }
+  function redo() {
+    const s = history.redo()
+    if (!s) {
+      toast.info('Дальше вперёд некуда')
+      return
+    }
+    apply(s)
+  }
+  function jumpToHistory(target: number) {
+    apply(history.jumpTo(target))
+  }
+  return { jumpToHistory, redo, undo }
+}
+
 let runToken = 0
 let debounceTimer: null | ReturnType<typeof setTimeout> = null
 let snapToken = 0
@@ -190,14 +238,18 @@ export function useDesignerRunner(state: DesignerState) {
 export function useDesigner() {
   const state = useDesignerState()
   const { runNow, scheduleRun } = useDesignerRunner(state)
+  const history = useHistory()
+  const { jumpToHistory, redo, undo } = createHistoryNav(state, history, scheduleRun)
 
   function updateDraft(s: Scenario) {
+    recordDraft(history, state.draft.value, s)
     state.draft.value = s
     scheduleRun()
   }
 
   function loadScenario(s: Scenario) {
     state.draft.value = s
+    history.reset(s, openLabel(s))
     state.applied.value = null
     state.result.value = null
     state.routes.value = null
@@ -245,10 +297,17 @@ export function useDesigner() {
   return {
     ...state,
     addFailureFor,
+    canRedo: history.canRedo,
+    canUndo: history.canUndo,
     downloadScenarioJson,
+    historyEntries: history.entries,
+    historyIndex: history.index,
+    jumpToHistory,
     loadScenario,
+    redo,
     runNow,
     scheduleRun,
+    undo,
     updateDraft,
   }
 }
