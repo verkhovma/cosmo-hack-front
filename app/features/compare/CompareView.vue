@@ -1,125 +1,98 @@
 <script setup lang="ts">
-import type { CompareResponse, JobEntry } from '~~/shared/types/scenario'
+import type { CompareResponse, JobEntry, JobRoutesData } from '~~/shared/types/scenario'
 
-import { fmtDuration, fmtPercent } from '~~/shared/utils/format'
+import { toast } from 'vue-sonner'
+import { buildCompareMarkdown, buildVerdict, diffScenarios, scoreJobs } from '~~/shared/utils/compare'
+import { downloadTextFile } from '~~/shared/utils/download'
 
-import { Badge } from '~/components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
+import { Alert, AlertDescription } from '~/components/ui/alert'
+
+import CompareBars from './CompareBars.vue'
+import CompareStrips from './CompareStrips.vue'
+import CompareTable from './CompareTable.vue'
+import ScenarioDiffPanel from './ScenarioDiffPanel.vue'
+import VerdictCard from './VerdictCard.vue'
 
 const props = defineProps<{
   data: CompareResponse
   jobs: JobEntry[]
+  routesByJob: Record<string, JobRoutesData | undefined>
+  routesError: null | string
   target: number
 }>()
 
+const { loadScenario } = useDesigner()
+
 const clients = computed(() => Object.keys(props.data.metrics_diff))
+const scores = computed(() => scoreJobs(props.jobs, props.data, props.target))
+const verdict = computed(() => buildVerdict(props.jobs, props.data, props.target))
 
-function metric(cid: string, jobId: string) {
-  return props.data.metrics_diff[cid]?.[jobId]
-}
-
-function bestAvail(cid: string): number {
-  return Math.max(...props.jobs.map(j => metric(cid, j.jobId)?.availability ?? -1))
-}
-
-function bestGap(cid: string): number {
-  return Math.min(...props.jobs.map(j => metric(cid, j.jobId)?.max_gap_s ?? Number.MAX_SAFE_INTEGER))
-}
-
-function firstAvail(cid: string): number | undefined {
-  const first = props.jobs[0]
-  return first ? metric(cid, first.jobId)?.availability : undefined
-}
-
-function jobOk(jobId: string): boolean {
-  return props.jobs.length > 0 && clients.value.every(cid => (metric(cid, jobId)?.availability ?? 0) >= props.target)
-}
-
-function titleOf(jid: string): string {
-  return props.jobs.find(j => j.jobId === jid)?.title ?? jid
-}
-
-// config_diff вида { "stage": [3, 1] } → «stage 3 → 1», иначе честный JSON.
-function humanDiff(k: string, v: [number, number]): string {
-  if (Array.isArray(v) && v.length === 2)
-    return `${k}: ${v[0]} → ${v[1]}`
-  return `${k}: ${JSON.stringify(v)}`
-}
-
-// Ячейка вынесена в локальный компонент, чтобы подсветка лучшего считалась рядом с данными.
-const CellValue = defineComponent({
-  props: { cid: { required: true, type: String }, jobId: { required: true, type: String } },
-  setup(cellProps) {
-    return () => {
-      const m = metric(cellProps.cid, cellProps.jobId)
-      if (!m)
-        return h('span', { class: 'text-mist' }, '—')
-      const isBestA = m.availability === bestAvail(cellProps.cid)
-      const isBestG = m.max_gap_s === bestGap(cellProps.cid)
-      const base = firstAvail(cellProps.cid)
-      const firstId = props.jobs[0]?.jobId
-      const diff = base === undefined || cellProps.jobId === firstId ? null : m.availability - base
-      const delta = diff === null
-        ? null
-        : `${diff >= 0 ? '+' : ''}${(diff * 100).toFixed(2)} п.п.`
-      return h('div', { class: 'flex flex-col gap-1' }, [
-        h('span', { class: isBestA ? 'font-bold text-orbital-light' : '' }, fmtPercent(m.availability)),
-        h('small', { class: `text-mist ${isBestG ? 'font-bold' : ''}` }, `перерыв ${fmtDuration(m.max_gap_s)}`),
-        delta ? h('small', { class: 'text-secondary' }, `Δ ${delta}`) : null,
-      ])
-    }
-  },
+const diffs = computed(() => {
+  const out: Record<string, ReturnType<typeof diffScenarios>> = {}
+  const base = props.jobs[0]?.scenario
+  for (const job of props.jobs.slice(1)) {
+    out[job.jobId] = base && job.scenario ? diffScenarios(base, job.scenario) : []
+  }
+  return out
 })
+
+const winner = computed(() => props.jobs.find(j => j.jobId === verdict.value.winnerId) ?? null)
+
+function openable(job: JobEntry): boolean {
+  return job.scenario !== null
+}
+
+async function openJob(job: JobEntry) {
+  if (!job.scenario) {
+    toast.error('У варианта нет сохранённого сценария')
+    return
+  }
+  loadScenario(job.scenario)
+  await navigateTo('/')
+}
+
+function openWinner() {
+  if (winner.value)
+    void openJob(winner.value)
+}
+
+function downloadMd() {
+  try {
+    const md = buildCompareMarkdown({
+      diffs: diffs.value,
+      jobs: props.jobs,
+      scores: scores.value,
+      target: props.target,
+      verdict: verdict.value,
+    })
+    downloadTextFile(`compare-${new Date().toISOString().slice(0, 10)}.md`, md, 'text/markdown')
+  }
+  catch (e: unknown) {
+    toast.error('Не удалось собрать отчёт', { description: errorMessage(e, 'Ошибка') })
+  }
+}
 </script>
 
 <template>
   <div class="flex flex-col gap-4">
-    <Card>
-      <CardHeader>
-        <CardTitle>Доступность и перерывы</CardTitle>
-        <CardDescription>Лучший подсвечен, дельта — относительно первого варианта</CardDescription>
-      </CardHeader>
-      <CardContent class="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Клиент</TableHead>
-              <TableHead v-for="j in jobs" :key="j.jobId">{{ j.title }}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow v-for="clientId in clients" :key="clientId">
-              <TableCell><b>{{ clientId }}</b></TableCell>
-              <TableCell v-for="j in jobs" :key="j.jobId">
-                <CellValue :cid="clientId" :job-id="j.jobId" />
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell class="text-mist">Цель ≥ {{ fmtPercent(target) }}</TableCell>
-              <TableCell v-for="j in jobs" :key="j.jobId">
-                <Badge :variant="jobOk(j.jobId) ? 'default' : 'destructive'">
-                  {{ jobOk(j.jobId) ? '✓' : '✗' }}
-                </Badge>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+    <VerdictCard
+      :verdict="verdict"
+      :winner-title="winner?.title ?? ''"
+      :can-open="winner !== null && openable(winner)"
+      @open="openWinner"
+      @download="downloadMd"
+    />
 
-    <Card>
-      <CardHeader>
-        <CardTitle>Различия конфигурации</CardTitle>
-      </CardHeader>
-      <CardContent class="flex flex-col gap-2 text-sm">
-        <div v-for="(changes, jid) in data.config_diff" :key="jid">
-          <b>{{ titleOf(String(jid)) }}</b>
-          <ul class="list-disc pl-5 text-secondary">
-            <li v-for="(v, k) in changes" :key="k">{{ humanDiff(String(k), v as [number, number]) }}</li>
-          </ul>
-        </div>
-      </CardContent>
-    </Card>
+    <Alert v-if="routesError" variant="destructive">
+      <AlertDescription>{{ routesError }}</AlertDescription>
+    </Alert>
+
+    <CompareBars :clients="clients" :data="data" :jobs="jobs" :target="target" />
+
+    <CompareStrips :jobs="jobs" :routes-by-job="routesByJob" :openable="openable" @open="openJob" />
+
+    <ScenarioDiffPanel :jobs="jobs" :diffs="diffs" :backend-diff="data.config_diff" />
+
+    <CompareTable :clients="clients" :data="data" :jobs="jobs" :target="target" />
   </div>
 </template>

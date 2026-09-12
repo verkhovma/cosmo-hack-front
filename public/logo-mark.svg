@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="sputnikovod-c1-t sphinx-c1-d">
+  <title id="sputnikovod-c1-t">Спутниковод — орбита-хаб</title>
+  <desc id="sphinx-c1-d">Scarlet orbit ring with gap, grey hub node and satellite dot</desc>
+  <defs>
+    <style>
+      .orb { fill: none; stroke: #EF3443; stroke-width: 7; stroke-linecap: round; }
+      .hub { fill: #545B62; }
+      .sat { fill: #EF3443; }
+    </style>
+  </defs>
+  <g id="icon">
+    <path class="orb" d="M48 12 A36 36 0 1 0 84 48" />
+    <circle class="hub" cx="48" cy="48" r="10" />
+    <circle class="sat" cx="84" cy="48" r="7" />
+    <circle cx="48" cy="48" r="3.5" fill="#fff" />
+  </g>
+</svg>

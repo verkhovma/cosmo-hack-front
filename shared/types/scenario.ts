@@ -133,3 +133,11 @@ export interface JobEntry {
   scenario: null | Scenario
   title: string
 }
+
+/** Маршруты одного варианта для полос сравнения (шаг/горизонт — из его сценария). */
+export interface JobRoutesData {
+  horizon: number
+  routes: Record<string, RouteEntry[]>
+  step: number
+  visibleLog: Record<string, string[][]>
+}
