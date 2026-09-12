@@ -75,11 +75,6 @@ export const api = {
       `/compute/${jobId}/snapshot?t_s=${t_s}`,
     ),
 
-  getRoutes: (jobId: string, clientId: string) =>
-    request<RoutesResponse>(
-      `/compute/${jobId}/routes?client_id=${encodeURIComponent(clientId)}`,
-    ),
-
   getMetrics: (jobId: string) =>
     request<{ metrics: Record<string, any>; target_availability: number }>(
       `/compute/${jobId}/metrics`,
@@ -87,10 +82,25 @@ export const api = {
 
   exportUrl: (jobId: string) => `${BASE}/compute/${jobId}/export`,
 
-  saveProject: (title: string, scenario: Scenario) =>
+  getRoutes: (jobId: string) =>
+    request<{
+      routes: Record<string, { t_s: number; path: string[] | null; reason: string }[]>;
+      visible_log: Record<string, string[][]>;
+      metrics: Record<string, { availability: number; max_gap_s: number }>;
+    }>(`/compute/${jobId}/routes`),
+
+  saveProject: (
+    title: string,
+    scenario: Scenario,
+    opts?: { saveAnyway?: boolean },
+  ) =>
     request<{ id: string; title: string }>("/projects", {
       method: "POST",
-      body: JSON.stringify({ title, scenario }),
+      body: JSON.stringify({
+        title,
+        scenario,
+        save_anyway: opts?.saveAnyway ?? false,
+      }),
     }),
 
   listProjects: () => request<ProjectMeta[]>("/projects"),

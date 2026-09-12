@@ -1,134 +1,75 @@
-import { useState } from "react";
-import { api } from "../api";
+import { useMemo, useState } from "react";
+import TabBar, { TabId } from "./TabBar";
+import PlanesTab from "./PlanesTab";
+import BatchesTab from "./BatchesTab";
+import GroundSitesTab from "./GroundSitesTab";
+import FailuresTab from "./FailuresTab";
+import GatewayOutagesTab from "./GatewayOutagesTab";
+import ErrorList from "./ErrorList";
 import type { Scenario } from "../types";
+import type { ValidationError } from "../utils/validate";
 
 export default function ScenarioEditor({
-  scenario,
-  onChange,
+  scenario, errors, onChange, onSave, onSaveAnyway,
 }: {
   scenario: Scenario;
+  errors: ValidationError[];
   onChange: (s: Scenario) => void;
+  onSave: () => void;
+  onSaveAnyway: () => void;
 }) {
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
+  const [tab, setTab] = useState<TabId>("batches");
 
-  async function apply(edits: Parameters<typeof api.editScenario>[1]) {
-    setBusy(true);
-    setErr(null);
-    try {
-      const { scenario: next } = await api.editScenario(scenario, edits);
-      onChange(next);
-    } catch (e: any) {
-      setErr(e.message);
-    } finally {
-      setBusy(false);
+  // счётчик ошибок по вкладкам
+  const badges = useMemo(() => {
+    const m: Partial<Record<TabId, number>> = {};
+    const map: Record<string, TabId> = {
+      planes: "planes",
+      satellites: "batches",
+      ground_sites: "ground",
+      failures: "failures",
+      gateway_outages: "gateway_outages",
+    };
+    for (const e of errors) {
+      const t = e.list ? map[e.list] : undefined;
+      if (t) m[t] = (m[t] ?? 0) + 1;
+      // ошибки без привязки к списку — не показываем в бейджах
     }
-  }
+    return m;
+  }, [errors]);
+
+  const hasErrors = errors.length > 0;
 
   return (
-    <section className="panel">
+    <section className="panel scenario-editor">
       <h2>Конфигурация</h2>
-      {err && <div className="error">{err}</div>}
 
-      <label>
-        Очередь запуска (launch_stage):
-        <select
-          value={scenario.design.launch_stage}
-          disabled={busy}
-          onChange={(e) =>
-            apply({ launch_stage: Number(e.target.value) as 1 | 2 | 3 })
-          }
-        >
-          <option value={1}>1 — 16 аппаратов</option>
-          <option value={2}>2 — 32 аппарата</option>
-          <option value={3}>3 — все 48</option>
-        </select>
-      </label>
+      {hasErrors && (
+        <ErrorList errors={errors} title="Ошибки валидации" />
+      )}
 
-      <h3>Плоскости</h3>
-      <table className="planes">
-        <thead>
-          <tr><th>ID</th><th>RAAN°</th><th>Phase°</th><th /></tr>
-        </thead>
-        <tbody>
-          {scenario.design.planes.map((p) => (
-            <PlaneRow key={p.id} plane={p} busy={busy} onApply={apply} />
-          ))}
-        </tbody>
-      </table>
+      <TabBar active={tab} onChange={setTab} badges={badges} />
 
-      <h3>Периоды недоступности спутников</h3>
-      <FailuresEditor scenario={scenario} busy={busy} onApply={apply} />
+      <div className="tab-body">
+        {tab === "planes"          && <PlanesTab          scenario={scenario} errors={errors} onChange={onChange} />}
+        {tab === "batches"         && <BatchesTab         scenario={scenario} errors={errors} onChange={onChange} />}
+        {tab === "ground"          && <GroundSitesTab     scenario={scenario} errors={errors} onChange={onChange} />}
+        {tab === "failures"        && <FailuresTab        scenario={scenario} errors={errors} onChange={onChange} />}
+        {tab === "gateway_outages" && <GatewayOutagesTab  scenario={scenario} errors={errors} onChange={onChange} />}
+      </div>
+
+      <div className="editor-actions">
+        {!hasErrors && (
+          <button className="btn primary" onClick={onSave}>
+            Сохранить
+          </button>
+        )}
+        {hasErrors && (
+          <button className="btn danger" onClick={onSaveAnyway}>
+            Сохранить всё равно (есть ошибки)
+          </button>
+        )}
+      </div>
     </section>
-  );
-}
-
-function PlaneRow({ plane, busy, onApply }: any) {
-  const [raan, setRaan] = useState(plane.raan_deg);
-  const [phase, setPhase] = useState(plane.phase_deg);
-
-  return (
-    <tr>
-      <td>{plane.id}</td>
-      <td>
-        <input
-          type="number" step="0.1" value={raan}
-          onChange={(e) => setRaan(Number(e.target.value))}
-        />
-      </td>
-      <td>
-        <input
-          type="number" step="0.1" value={phase}
-          onChange={(e) => setPhase(Number(e.target.value))}
-        />
-      </td>
-      <td>
-        <button
-          disabled={busy}
-          onClick={() =>
-            onApply({
-              planes: [{ plane_id: plane.id, raan_deg: raan, phase_deg: phase }],
-            })
-          }
-        >
-          Применить
-        </button>
-      </td>
-    </tr>
-  );
-}
-
-function FailuresEditor({ scenario, busy, onApply }: any) {
-  const [satId, setSatId] = useState(scenario.design.satellites[0]?.id ?? "");
-  const [start, setStart] = useState(21600);
-  const [end, setEnd] = useState(scenario.environment.horizon_s);
-
-  return (
-    <div className="failures">
-      <select value={satId} onChange={(e) => setSatId(e.target.value)}>
-        {scenario.design.satellites.map((s: any) => (
-          <option key={s.id} value={s.id}>{s.id}</option>
-        ))}
-      </select>
-      <input type="number" value={start} onChange={(e) => setStart(+e.target.value)} />
-      <input type="number" value={end} onChange={(e) => setEnd(+e.target.value)} />
-      <button
-        disabled={busy}
-        onClick={() =>
-          onApply({
-            add_failures: [{ satellite_id: satId, start_s: start, end_s: end }],
-          })
-        }
-      >
-        Добавить отказ
-      </button>
-      <ul>
-        {scenario.failures.map((f: any, i: number) => (
-          <li key={i}>
-            {f.satellite_id}: [{f.start_s}; {f.end_s})
-          </li>
-        ))}
-      </ul>
-    </div>
   );
 }

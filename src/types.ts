@@ -70,6 +70,8 @@ export interface SatelliteState {
   y_km: number;
   z_km: number;
   active: boolean;
+  /** ID клиентов и шлюзов, которые видят спутник в данный момент. */
+  visible_to?: string[];
 }
 
 export type Edge = [string, string, number];
@@ -81,13 +83,35 @@ export interface Snapshot {
 }
 
 // ---------------------------------------------------------------------------
-// Результаты расчёта
+// Маршруты и метрики
 // ---------------------------------------------------------------------------
 export interface ClientMetrics {
   availability: number;
   max_gap_s: number;
+  hop_counts?: (number | null)[];
 }
 
+export type Reason =
+  | "ok"
+  | "no_visible_satellite"
+  | "no_isl_path"
+  | "no_gateway_contact"
+  | "gateway_offline";
+
+export interface RouteEntry {
+  t_s: number;
+  path: string[] | null;
+  reason: Reason;
+}
+
+/** Ответ /api/compute/{job}/routes */
+export interface RoutesResponse {
+  routes: Record<string, RouteEntry[]>;
+  visible_log: Record<string, string[][]>;
+  metrics: Record<string, ClientMetrics>;
+}
+
+/** Ответ /api/compute */
 export interface ComputeResult {
   job_id: string;
   elapsed_s: number;
@@ -95,17 +119,9 @@ export interface ComputeResult {
   target_availability: number;
 }
 
-export interface RouteEntry {
-  t_s: number;
-  path: string[] | null;
-}
-
-export interface RoutesResponse {
-  client_id: string;
-  routes: RouteEntry[];
-  metrics: ClientMetrics;
-}
-
+// ---------------------------------------------------------------------------
+// Сравнение и проекты
+// ---------------------------------------------------------------------------
 export interface CompareResponse {
   job_ids: string[];
   metrics_diff: Record<string, Record<string, ClientMetrics>>;

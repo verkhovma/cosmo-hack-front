@@ -115,3 +115,296 @@ body {
   background: #0a0f1e; padding: 12px; border-radius: 8px;
   max-height: 500px; overflow: auto; font-size: 12px;
 }
+
+.start-page { display: grid; grid-template-columns: 300px 1fr; gap: 24px; padding: 24px; }
+.start-left button { display: block; width: 100%; margin: 4px 0; text-align: left; }
+.start-right { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.big { width: 420px; padding: 20px; font-size: 16px; }
+.big.primary { background: var(--accent); color: #04210c; font-weight: 700; }
+
+.field-error { outline: 1px solid var(--danger); background: #3a1020; border-radius: 3px; }
+
+.error-list {
+  background: #3a1020; color: #ffb4c4; padding: 12px;
+  border-radius: 8px; margin-bottom: 12px;
+}
+.error-list ul { margin: 6px 0 0; padding-left: 20px; }
+
+.map-wrap { position: relative; }
+.map-wrap canvas { width: 100%; height: auto; border-radius: 8px; cursor: grab; }
+.map-wrap canvas:active { cursor: grabbing; }
+.map-controls { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 4px; }
+.map-controls button { width: 28px; height: 28px; }
+
+.sat-popup {
+  position: absolute; pointer-events: none;
+  background: #0b1021ee; border: 1px solid #2a3a66; border-radius: 6px;
+  padding: 6px 8px; font-size: 12px; white-space: pre; transform: translate(10px, 10px);
+}
+
+.avail-strip { margin: 8px 0; }
+.avail-header { display: flex; gap: 12px; font-size: 13px; }
+.avail-header .muted { color: var(--muted); }
+.strip { position: relative; display: flex; height: 22px; border-radius: 4px; overflow: hidden; }
+.strip .seg { height: 100%; }
+.strip .seg.ok { background: var(--accent); }
+.strip .seg.bad { background: var(--danger); }
+.strip-popup {
+  position: absolute; top: 100%; margin-top: 4px;
+  background: #0b1021; border: 1px solid #2a3a66; border-radius: 4px;
+  padding: 4px 8px; font-size: 12px; white-space: pre; pointer-events: none;
+  z-index: 10;
+}
+
+.timeline .btn.tiny { padding: 2px 6px; font-size: 11px; }
+
+/* --- Вкладки --- */
+.tab-bar {
+  display: flex; flex-wrap: wrap; gap: 4px;
+  border-bottom: 1px solid #1e2a4a; margin-bottom: 12px;
+}
+.tab {
+  background: transparent; color: var(--muted);
+  border: 0; padding: 8px 12px; cursor: pointer;
+  border-bottom: 2px solid transparent;
+  position: relative;
+}
+.tab.active { color: var(--text); border-bottom-color: var(--accent); }
+.tab.has-errors { color: #ffb4c4; }
+.tab .badge {
+  display: inline-block; margin-left: 6px;
+  background: var(--danger); color: #fff;
+  border-radius: 10px; font-size: 11px;
+  padding: 0 6px; line-height: 16px;
+}
+
+.tab-pane { display: flex; flex-direction: column; gap: 8px; }
+
+/* --- Заголовок списка --- */
+.list-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+}
+.list-header h3 { margin: 0; font-size: 14px; }
+.list-actions { display: flex; gap: 8px; }
+
+/* --- Таблицы редактирования --- */
+.edit-table {
+  width: 100%; border-collapse: collapse;
+}
+.edit-table th, .edit-table td {
+  padding: 4px 6px; border-bottom: 1px solid #1e2a4a;
+  text-align: left; font-size: 13px;
+}
+.edit-table.small th, .edit-table.small td { font-size: 12px; padding: 2px 4px; }
+.edit-table input, .edit-table select {
+  width: 100%; background: #0b1021; color: var(--text);
+  border: 1px solid #1e2a4a; border-radius: 4px;
+  padding: 4px 6px; font-size: 13px;
+}
+.edit-table tr.row-error input,
+.edit-table tr.row-error select {
+  border-color: var(--danger);
+}
+
+/* --- Field с ошибкой --- */
+.field { display: inline-block; width: 100%; }
+.field-error input, .field-error select {
+  border-color: var(--danger) !important;
+  background: #2a0f18 !important;
+}
+
+/* --- Группы отказов --- */
+.failure-groups { display: flex; flex-direction: column; gap: 12px; }
+.failure-group {
+  background: #0f172e; border: 1px solid #1e2a4a;
+  border-radius: 6px; padding: 8px 10px;
+}
+.failure-group-header {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 6px;
+}
+.failure-group-header .btn { margin-left: auto; }
+.small { font-size: 12px; }
+.muted { color: var(--muted); }
+.ok { color: var(--accent); }
+
+/* --- Сводка по очередям --- */
+.batches-summary {
+  display: flex; gap: 12px; margin-top: 8px;
+}
+.batch-card {
+  background: #0f172e; border: 1px solid #1e2a4a;
+  border-radius: 6px; padding: 6px 10px; font-size: 12px;
+}
+
+/* --- Кнопки --- */
+.btn.tiny { padding: 3px 8px; font-size: 12px; }
+.btn.danger { background: var(--danger); color: #fff; }
+
+/* --- Список ошибок --- */
+.error-list {
+  background: #3a1020; color: #ffb4c4;
+  padding: 10px 12px; border-radius: 8px; margin-bottom: 12px;
+  font-size: 13px;
+}
+.error-list-head { display: flex; justify-content: space-between; }
+.error-list ul { margin: 6px 0 0; padding-left: 20px; }
+.error-list code { color: #ffd0da; }
+
+/* --- Действия редактора --- */
+.editor-actions {
+  display: flex; justify-content: flex-end;
+  gap: 8px; margin-top: 12px;
+}
+.avail-strip { margin: 12px 0; }
+
+.avail-header {
+  display: flex; gap: 12px; align-items: baseline;
+  font-size: 13px; margin-bottom: 4px;
+}
+.avail-header .muted { color: var(--muted); }
+
+.strip-row {
+  display: flex; align-items: center; gap: 8px;
+  margin: 3px 0;
+}
+.strip-label {
+  width: 70px; font-size: 11px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.strip {
+  position: relative; flex: 1;
+  display: flex; height: 18px;
+  border-radius: 4px; overflow: hidden;
+  background: #0a0f1e;
+}
+.strip .seg { height: 100%; cursor: pointer; }
+.strip .seg.ok      { background: var(--accent); }
+.strip .seg.bad     { background: var(--danger); }
+.strip .seg.vis-ok  { background: #4a9eff; }
+.strip .seg.vis-bad { background: #2a3a66; }
+
+.strip-popup {
+  position: absolute; top: 100%; margin-top: 4px;
+  background: #0b1021; border: 1px solid #2a3a66;
+  border-radius: 4px; padding: 4px 8px;
+  font-size: 12px; white-space: pre;
+  pointer-events: none; z-index: 10;
+}
+
+.legend-row {
+  display: flex; gap: 12px; font-size: 12px; color: var(--muted);
+  margin-top: 4px;
+}
+.legend-row .dot {
+  display: inline-block; width: 10px; height: 10px;
+  border-radius: 2px; margin-right: 4px;
+}
+
+/* --- Стартовый экран --- */
+.start-page {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  padding: 32px;
+  min-height: 100vh;
+  align-items: start;
+}
+.start-left {
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 16px;
+}
+.start-left h2 {
+  font-size: 14px; color: var(--muted);
+  text-transform: uppercase; margin: 0 0 12px;
+}
+.start-left button {
+  display: block; width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  margin: 4px 0;
+  background: #1a2344;
+  color: var(--text);
+  border: 0; border-radius: 6px;
+  cursor: pointer;
+}
+.start-left button:hover { background: #24305c; }
+
+.start-right {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+  padding-top: 48px;
+}
+.start-right h1 {
+  font-size: 24px; margin: 0 0 24px;
+  text-align: center;
+}
+.big {
+  width: 460px; max-width: 100%;
+  padding: 20px;
+  font-size: 16px;
+  background: #1a2344;
+  color: var(--text);
+  border: 1px solid #2a3a66;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.big.primary {
+  background: var(--accent);
+  color: #04210c;
+  font-weight: 700;
+  border-color: var(--accent);
+}
+.big:hover { filter: brightness(1.1); }
+
+/* --- Карта --- */
+.map-wrap { position: relative; margin-bottom: 12px; }
+.map-wrap canvas {
+  width: 100%; height: auto;
+  border-radius: 8px;
+  cursor: grab;
+  display: block;
+}
+.map-wrap canvas:active { cursor: grabbing; }
+.map-controls {
+  position: absolute; top: 8px; right: 8px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.map-controls button {
+  width: 30px; height: 30px;
+  background: #0b1021cc;
+  border: 1px solid #2a3a66;
+  color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.sat-popup {
+  position: absolute;
+  pointer-events: none;
+  background: #0b1021f0;
+  border: 1px solid #2a3a66;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  white-space: pre;
+  transform: translate(12px, 12px);
+  z-index: 5;
+}
+
+/* --- Детали выбранного спутника --- */
+.sat-details {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.sat-details .row {
+  display: flex; gap: 12px; align-items: center;
+  margin-bottom: 4px;
+}
+.sat-details .row .btn { margin-left: auto; }
