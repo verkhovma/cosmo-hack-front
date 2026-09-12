@@ -9,6 +9,15 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/eslint'],
 
+  app: {
+    head: {
+      title: 'Спутниковод — Проектирование группировки',
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
+    },
+  },
+
   // shadcn-vue держим с явными импортами; index.ts-баррели не сканируем как компоненты
   components: [{ path: '~/components', pathPrefix: false, extensions: ['vue'] }],
 

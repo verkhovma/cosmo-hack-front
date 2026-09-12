@@ -142,7 +142,7 @@ function removeSat(i: number) {
       </Table>
     </div>
 
-    <div class="flex gap-2">
+    <div class="flex flex-col gap-2 sm:flex-row">
       <Card v-for="b in ([1, 2, 3] as const)" :key="b" class="flex-1 p-3 text-xs">
         <b>Очередь {{ b }}</b>
         <span> — {{ counts[b] }} аппаратов</span>

@@ -58,13 +58,14 @@ function upd(idx: number, k: 'end_s' | 'start_s', v: number) {
     </p>
     <div class="flex flex-col gap-3">
       <Card v-for="[gid, list] in byGw" :key="gid" class="p-3">
-        <div class="mb-2 flex items-center gap-2">
+        <div class="mb-2 flex flex-wrap items-center gap-2">
           <b>{{ gid }}</b>
           <span class="text-xs text-mist">— отказов: {{ list.length }}</span>
           <Button size="sm" variant="secondary" class="ml-auto" @click="add(gid)">+ отказ</Button>
         </div>
         <p v-if="!list.length" class="text-xs text-mist">Отказов нет</p>
-        <Table v-else>
+        <div v-else class="overflow-x-auto">
+        <Table class="min-w-[520px]">
           <TableHeader>
             <TableRow>
               <TableHead>Начало, с</TableHead>
@@ -84,6 +85,7 @@ function upd(idx: number, k: 'end_s' | 'start_s', v: number) {
             </TableRow>
           </TableBody>
         </Table>
+        </div>
       </Card>
     </div>
   </div>

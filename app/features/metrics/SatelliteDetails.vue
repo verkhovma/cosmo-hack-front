@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { RouteEntry, Snapshot } from '~~/shared/types/scenario'
 
-import { PlusIcon } from 'lucide-vue-next'
+import { PlusIcon, XIcon } from 'lucide-vue-next'
 import { hasPath } from '~~/shared/utils/routes'
 
 import { Badge } from '~/components/ui/badge'
@@ -37,7 +37,7 @@ const inRoutes = computed(() => {
     <CardHeader class="flex flex-row items-center gap-3">
       <CardTitle>{{ satelliteId }}</CardTitle>
       <Badge :variant="sat?.active ? 'default' : 'secondary'">{{ sat?.active ? 'активен' : 'неактивен' }}</Badge>
-      <Button size="sm" variant="ghost" class="ml-auto" @click="emit('close')">×</Button>
+      <Button size="icon" variant="ghost" class="ml-auto h-10 w-10 shrink-0" title="Закрыть" @click="emit('close')"><XIcon /></Button>
     </CardHeader>
     <CardContent class="flex flex-col gap-2 text-sm">
       <p>виден: {{ visibleTo.length ? visibleTo.join(', ') : '—' }}</p>

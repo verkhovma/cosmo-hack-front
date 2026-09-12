@@ -1,21 +1,23 @@
-// Стабильные цвета плоскостей/маршрутов по хэшу id (порт src/utils/colors.ts).
-// Палитра для тёмной карты; маршрут выбранного клиента — azure из DESIGN.md.
-const PALETTE = [
-  '#e6194b',
-  '#3cb44b',
-  '#4363d8',
-  '#f58231',
-  '#911eb4',
+// Фирменные цвета карты из DESIGN.md — только токены палитры, без «светофора».
+// Суша/маршрут уже были на токенах (orbital-blue..., azure); клиент/шлюз/плоскости
+// переведены на них же, чтобы легенда совпадала с canvas.
+export const CLIENT_COLOR = '#5b9dff'
+export const GATEWAY_COLOR = '#ffffff'
+export const INACTIVE_COLOR = '#6b7684'
+export const ISL_COLOR = 'rgba(89,142,188,0.25)'
+
+/** Активный маршрут на карте — всегда azure (DESIGN.md route-active). */
+export const ACTIVE_ROUTE_COLOR = '#598ebc'
+
+// Оттенки синей гаммы для плоскостей: различимы на ink-канве и не спорят
+// с алым (primary зарезервирован под разрывы/действия) и azure (маршрут).
+const PLANE_PALETTE = [
+  '#5b9dff',
   '#46f0f0',
-  '#f032e6',
-  '#bcf60c',
-  '#fabebe',
-  '#008080',
+  '#92a8b4',
+  '#4363d8',
   '#e6beff',
-  '#9a6324',
-  '#fffac8',
-  '#800000',
-  '#aaffc3',
+  '#008080',
 ]
 
 function hash(id: string, salt: number): number {
@@ -25,12 +27,9 @@ function hash(id: string, salt: number): number {
 }
 
 export function planeColor(planeId: string): string {
-  return PALETTE[hash(planeId, 31) % PALETTE.length] ?? '#e6194b'
+  return PLANE_PALETTE[hash(planeId, 31) % PLANE_PALETTE.length] ?? PLANE_PALETTE[0] as string
 }
 
 export function routeColor(clientId: string): string {
-  return PALETTE[hash(clientId, 37) % PALETTE.length] ?? '#e6194b'
+  return PLANE_PALETTE[hash(clientId, 37) % PLANE_PALETTE.length] ?? PLANE_PALETTE[0] as string
 }
-
-/** Активный маршрут на карте — всегда azure (DESIGN.md route-active). */
-export const ACTIVE_ROUTE_COLOR = '#598ebc'

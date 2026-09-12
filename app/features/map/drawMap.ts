@@ -3,7 +3,7 @@ import type { GeoPath } from 'd3-geo'
 import type { FeatureCollection } from 'geojson'
 import type { GroundSite, RouteEntry, SatelliteState, Scenario, Snapshot } from '~~/shared/types/scenario'
 
-import { ACTIVE_ROUTE_COLOR, planeColor } from '~~/shared/utils/colors'
+import { ACTIVE_ROUTE_COLOR, CLIENT_COLOR, GATEWAY_COLOR, INACTIVE_COLOR, ISL_COLOR, planeColor } from '~~/shared/utils/colors'
 import { hasPath } from '~~/shared/utils/routes'
 
 export const MAP_W = 1200
@@ -130,7 +130,7 @@ export function drawOverlays(
 ) {
   const { hiddenSats, scenario, snapshot } = opts
   const satById = new Map(snapshot.satellites.map(s => [s.id, s]))
-  ctx.strokeStyle = 'rgba(89,142,188,0.25)'
+  ctx.strokeStyle = ISL_COLOR
   ctx.lineWidth = 1
   for (const [a, b] of snapshot.edges) {
     const sa = satById.get(a)
@@ -153,10 +153,19 @@ export function drawOverlays(
     const p = project(g.lat_deg, g.lon_deg)
     if (!p)
       continue
-    ctx.fillStyle = g.role === 'gateway' ? '#f5a623' : '#4cd964'
     ctx.beginPath()
     ctx.arc(p[0], p[1], 5, 0, Math.PI * 2)
-    ctx.fill()
+    if (g.role === 'gateway') {
+      ctx.fillStyle = GATEWAY_COLOR
+      ctx.fill()
+      ctx.strokeStyle = '#10141a'
+      ctx.lineWidth = 2
+      ctx.stroke()
+    }
+    else {
+      ctx.fillStyle = CLIENT_COLOR
+      ctx.fill()
+    }
     ctx.fillStyle = '#fff'
     ctx.font = '11px Inter, sans-serif'
     ctx.fillText(g.id, p[0] + 7, p[1] + 4)
@@ -170,7 +179,7 @@ export function drawOverlays(
     const p = project(lat, lon)
     if (!p)
       continue
-    ctx.fillStyle = s.active ? planeColor(planeOf.get(s.id) ?? '') : '#555'
+    ctx.fillStyle = s.active ? planeColor(planeOf.get(s.id) ?? '') : INACTIVE_COLOR
     ctx.beginPath()
     ctx.arc(p[0], p[1], s.active ? 3 : 2, 0, Math.PI * 2)
     ctx.fill()
