@@ -175,16 +175,18 @@ function goConfig() {
 
     <div class="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div class="flex min-w-0 flex-col gap-4">
-        <div class="sticky top-2 z-10 flex flex-col gap-4 lg:top-4">
-          <MapView
-            :scenario="draft"
-            :snapshot="snapshot"
-            :routes="routes ?? {}"
-            :t-s="ts"
-            :selected-client="selectedClient"
-            :hidden-sats="hiddenSats"
-            @select-satellite="selectedSatellite = $event"
-          />
+        <MapView
+          :scenario="draft"
+          :snapshot="snapshot"
+          :routes="routes ?? {}"
+          :t-s="ts"
+          :selected-client="selectedClient"
+          :hidden-sats="hiddenSats"
+          @select-satellite="selectedSatellite = $event"
+        />
+        <!-- Прибитой держим только шкалу времени: карта вместе с ней выше вьюпорта
+             (≈615px на 1280×720), и полоски доступности под ней не видно вовсе. -->
+        <div class="sticky top-2 z-10 lg:top-4">
           <TimelineBar :t-s="ts" :horizon="draft.environment.horizon_s" :step="draft.environment.step_s" @change="ts = $event" />
         </div>
         <Card v-if="routes" class="p-4">
